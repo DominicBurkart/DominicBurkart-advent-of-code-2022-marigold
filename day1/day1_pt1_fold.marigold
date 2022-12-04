@@ -1,0 +1,40 @@
+struct Line {
+  calories: u64
+}
+
+struct CalorieAccumulator {
+  max: u64,
+  current: u64
+}
+
+fn acc() -> CalorieAccumulator {
+  CalorieAccumulator {
+    max: 0,
+    current: 0
+  }
+}
+
+fn max_run(acc: CalorieAccumulator, line: Line) -> CalorieAccumulator {
+  match line.calories {
+    0 => {
+      if acc.current > acc.max {
+        return  CalorieAccumulator {max: acc.current, current: 0};
+      }
+      CalorieAccumulator {
+        max: acc.max,
+        current: 0
+      }
+    },
+    c => {
+      return CalorieAccumulator {
+        max: acc.max,
+        current: acc.current + c
+      }
+    }
+  }
+}
+
+read_file("./day1.csv", csv, struct=Line)
+  .ok_or_panic()
+  .fold(acc, max_run)
+  .write_file("/dev/stdout", csv)

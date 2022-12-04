@@ -1,0 +1,61 @@
+enum Them {
+  Rock = "A",
+  Paper = "B",
+  Scissors = "C",
+}
+
+enum You {
+  Rock = "X",
+  Paper = "Y",
+  Scissors = "Z",
+}
+
+struct Round {
+  them: Them,
+  you: You,
+}
+
+fn score_for_round(prior_score: u64, r: Round) -> u64 {
+  enum Outcome {
+    TheyWon,
+    YouWon,
+    Draw,
+  }
+
+  const fn winner(t: Them, y: You) -> Outcome {
+    match t {
+      Them::Rock => match y {
+        You::Rock => Outcome::Draw,
+        You::Paper => Outcome::YouWon,
+        You::Scissors => Outcome::TheyWon
+      },
+      Them::Paper => match y {
+        You::Rock => Outcome::TheyWon,
+        You::Paper => Outcome::Draw,
+        You::Scissors => Outcome::YouWon
+      },
+      Them::Scissors => match y {
+        You::Rock => Outcome::YouWon,
+        You::Paper => Outcome::TheyWon,
+        You::Scissors => Outcome::Draw
+      }
+    }
+  }
+
+  let outcome_points = match winner(r.them, r.you) {
+    Outcome::TheyWon => 0,
+    Outcome::Draw => 3,
+    Outcome::YouWon => 6
+  };
+  let choice_points = match r.you {
+    You::Rock => 1,
+    You::Paper => 2,
+    You::Scissors => 3
+  };
+  prior_score + outcome_points + choice_points
+}
+
+read_file("day2.csv", csv, struct=Round)
+  .ok_or_panic()
+  .fold(0, score_for_round)
+  .write_file("/dev/stdout", csv)

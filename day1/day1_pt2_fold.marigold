@@ -1,0 +1,75 @@
+struct Line {
+  calories: u64
+}
+
+struct CalorieAccumulator {
+  first: u64,
+  second: u64,
+  third: u64,
+  current: u64
+}
+
+fn acc() -> CalorieAccumulator {
+  CalorieAccumulator {
+    first: 0,
+    second: 0,
+    third: 0,
+    current: 0
+  }
+}
+
+fn max_run(acc: CalorieAccumulator, line: Line) -> CalorieAccumulator {
+  // this solution is a bit repetitive, but is a reasonable stopgap until
+  // mapreduce is implemented in Marigold.
+
+  match line.calories {
+    0 => {
+      if acc.current > acc.first {
+        return CalorieAccumulator {
+          first: acc.current,
+          second: acc.first,
+          third: acc.second,
+          current: 0
+        };
+      } else if acc.current > acc.second {
+        return CalorieAccumulator {
+          first: acc.first,
+          second: acc.current,
+          third: acc.second,
+          current: 0
+        };
+      } else if acc.current > acc.third {
+        return CalorieAccumulator {
+          first: acc.first,
+          second: acc.second,
+          third:  acc.current,
+          current: 0
+        };
+      }
+      CalorieAccumulator {
+        first: acc.first,
+        second: acc.second,
+        third: acc.third,
+        current: 0
+      }
+    },
+    c => {
+      return CalorieAccumulator {
+        first: acc.first,
+        second: acc.second,
+        third: acc.third,
+        current: acc.current + c
+      };
+    }
+  }
+}
+
+fn sum_top_three(c: CalorieAccumulator) -> u64 {
+  c.first + c.second + c.third
+}
+
+read_file("./day1.csv", csv, struct=Line)
+  .ok_or_panic()
+  .fold(acc, max_run)
+  .map(sum_top_three)
+  .write_file("/dev/stdout", csv)
